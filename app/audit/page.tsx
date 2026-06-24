@@ -21,8 +21,16 @@ interface AuditResult {
 
 const CONTENT_TYPES = [
   { value: '', label: 'Any / General' },
-  ...Object.values(PROMPTS).map(p => ({ value: p.contentType, label: p.name })),
+  { value: 'Ad', label: 'Ad Suite' },
+  { value: 'Landing hero', label: 'Landing Hero' },
+  { value: 'EDM', label: 'EDM' },
+  { value: 'Full landing page', label: 'Full Landing Page' },
+  { value: 'PR boilerplate', label: 'PR Boilerplate' },
+  { value: 'Product description', label: 'Product Description' },
 ]
+
+const TONE_VARIANTS = ['Consumer', 'Neutral', 'Lifestyle', 'Technical', 'Professional'] as const
+type ToneVariant = typeof TONE_VARIANTS[number] | ''
 
 function ScoreRing({ score }: { score: number }) {
   const isGood   = score >= 90
@@ -49,6 +57,7 @@ function ScoreRing({ score }: { score: number }) {
 export default function AuditPage() {
   const [draft, setDraft] = useState('')
   const [contentType, setContentType] = useState('')
+  const [toneVariant, setToneVariant] = useState<ToneVariant>('')
   const [result, setResult] = useState<AuditResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -64,7 +73,7 @@ export default function AuditPage() {
       const res = await fetch('/api/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ draft, contentType }),
+        body: JSON.stringify({ draft, contentType, toneVariant }),
       })
       if (!res.ok) throw new Error('Audit failed')
       const data = await res.json()
@@ -108,26 +117,48 @@ export default function AuditPage() {
         </div>
 
         {/* Content type */}
-        <div className="mb-6">
+        <div className="mb-5">
           <p className="text-[10px] font-semibold text-plaud-warm-dark uppercase tracking-[0.15em] mb-3">
             Content type
             <span className="ml-2 normal-case tracking-normal font-normal text-plaud-warm-dark/60">(optional)</span>
           </p>
-          <div className="relative">
-            <select
-              value={contentType}
-              onChange={e => setContentType(e.target.value)}
-              className="w-full px-4 py-3 bg-plaud-white border border-transparent rounded-plaud text-sm focus:outline-none focus:border-plaud-black text-plaud-black transition-colors appearance-none"
-            >
-              {CONTENT_TYPES.map(ct => (
-                <option key={ct.value} value={ct.value}>{ct.label}</option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-plaud-warm-dark">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
+          <div className="flex flex-wrap gap-2">
+            {CONTENT_TYPES.map(ct => (
+              <button
+                key={ct.value}
+                onClick={() => setContentType(ct.value)}
+                className={`px-3.5 py-1.5 rounded-plaud text-sm font-medium transition-colors ${
+                  contentType === ct.value
+                    ? 'bg-plaud-black text-white'
+                    : 'bg-plaud-white text-plaud-black hover:bg-black/5'
+                }`}
+              >
+                {ct.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Tone variant */}
+        <div className="mb-6">
+          <p className="text-[10px] font-semibold text-plaud-warm-dark uppercase tracking-[0.15em] mb-3">
+            Tone variant
+            <span className="ml-2 normal-case tracking-normal font-normal text-plaud-warm-dark/60">(optional)</span>
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {TONE_VARIANTS.map(tone => (
+              <button
+                key={tone}
+                onClick={() => setToneVariant(toneVariant === tone ? '' : tone)}
+                className={`px-3.5 py-1.5 rounded-plaud text-sm font-medium transition-colors ${
+                  toneVariant === tone
+                    ? 'bg-plaud-black text-white'
+                    : 'bg-plaud-white text-plaud-black hover:bg-black/5'
+                }`}
+              >
+                {tone}
+              </button>
+            ))}
           </div>
         </div>
 

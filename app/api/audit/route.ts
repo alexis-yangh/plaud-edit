@@ -11,11 +11,16 @@ function proxyUrl() {
 }
 
 export async function POST(request: Request) {
-  const { draft, contentType } = await request.json()
+  const { draft, contentType, toneVariant } = await request.json()
   if (!draft?.trim()) return Response.json({ error: 'Draft is required' }, { status: 400 })
 
-  const userMessage = contentType
-    ? `Content type: ${contentType}\n\nCopy to audit:\n\n${draft.trim()}`
+  const context = [
+    contentType ? `Content type: ${contentType}` : '',
+    toneVariant ? `Tone variant: ${toneVariant}` : '',
+  ].filter(Boolean).join('\n')
+
+  const userMessage = context
+    ? `${context}\n\nCopy to audit:\n\n${draft.trim()}`
     : `Copy to audit:\n\n${draft.trim()}`
 
   const url = proxyUrl()
