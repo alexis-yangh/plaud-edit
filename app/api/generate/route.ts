@@ -18,20 +18,26 @@ export async function POST(request: Request) {
 
   const userMessage = `BRIEF\n\n${brief.trim()}\n\n---\n\nTASK\n\n${prompt.taskInstruction}\n\n---\n\nQA CHECK\n\n${prompt.qaInstruction}`
 
-  const upstream = await fetch(proxyUrl(true), {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.ANTHROPIC_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      anthropic_version: 'vertex-2023-10-16',
-      max_tokens: 4096,
-      system: prompt.systemContext,
-      messages: [{ role: 'user', content: userMessage }],
-      stream: true,
-    }),
-  })
+  let upstream: Response
+  try {
+    upstream = await fetch(proxyUrl(true), {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.ANTHROPIC_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        anthropic_version: 'vertex-2023-10-16',
+        max_tokens: 4096,
+        system: prompt.systemContext,
+        messages: [{ role: 'user', content: userMessage }],
+        stream: true,
+      }),
+    })
+  } catch (err: any) {
+    console.error('Generate fetch error:', String(err), 'URL:', proxyUrl(true))
+    return new Response('Generation failed', { status: 500 })
+  }
 
   if (!upstream.ok) {
     const err = await upstream.text()
