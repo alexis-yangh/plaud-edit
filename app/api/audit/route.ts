@@ -16,8 +16,12 @@ export async function POST(request: Request) {
     ? `Content type: ${contentType}\n\nCopy to audit:\n\n${draft.trim()}`
     : `Copy to audit:\n\n${draft.trim()}`
 
+  const url = proxyUrl()
+  console.log('Audit URL:', url)
+  console.log('API key present:', !!process.env.ANTHROPIC_API_KEY)
+
   try {
-    const upstream = await fetch(proxyUrl(), {
+    const upstream = await fetch(url, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.ANTHROPIC_API_KEY}`,
@@ -45,7 +49,7 @@ export async function POST(request: Request) {
     const result = JSON.parse(jsonMatch[0])
     return Response.json(result)
   } catch (err: any) {
-    console.error('Audit error:', String(err))
+    console.error('Audit error:', err?.name, err?.message, err?.stack)
     return Response.json({ error: err?.message || String(err) }, { status: 500 })
   }
 }
