@@ -78,16 +78,11 @@ Claim rule: only use claims from the SSOT page provided. Every spec must be exac
 
     briefTemplate: `Product:
 Audience:
-Primary message (one sentence — what must land):
-Key proof point or spec to anchor the suite:
-Trust signal to use in long ad:
+Primary message:
+Key proof point:
 CTA:
-Placement — short ad:
-Placement — long ad:
-Landing page hero copy (if available — paste H1 + subheadline):
-Do not say:
-SSOT page link:
-Locale: EN-US`,
+Placement:
+Do not say:`,
 
     taskInstruction: `Write 3 ad suite variants for the brief above.
 
@@ -186,16 +181,10 @@ Claim rule: every factual or performance claim must appear in the SSOT product p
 
     briefTemplate: `Product:
 Audience:
-Primary message (one sentence — what must land):
-Top 1–2 proof points to anchor credibility:
-CTA button text:
-H1 character limit: 65
-Subheadline character limit: 130
-Supporting line needed: Yes / No
-Campaign or launch context (if any):
-Do not say:
-SSOT page link:
-Locale: EN-US`,
+Primary message:
+Proof points:
+CTA:
+Do not say:`,
 
     taskInstruction: `Write 3 landing page hero section variants for the brief above.
 
@@ -271,14 +260,11 @@ Claim rule: only use claims from the SSOT page provided.`,
     briefTemplate: `Product:
 Audience:
 Use case: Product launch / Re-engagement / Promotional
-Primary message (one sentence — what must land):
-Key feature or proof point:
+Primary message:
+Key proof point:
 Offer or incentive:
 CTA:
-Personalization token: Yes / No
-Do not say:
-SSOT page link:
-Locale: EN-US`,
+Do not say:`,
 
     taskInstruction: `Write 3 full EDM variants for the brief above.
 
@@ -352,17 +338,13 @@ Plaud Note Pro · Plaud Note · Plaud NotePin S · Plaud NotePin · Plaud Intell
 Claim rule: only use claims from the SSOT page. Every number exact — never approximated.`,
 
     briefTemplate: `Product:
-Campaign or launch context:
-Primary audience:
-Primary message (one sentence — what must land):
+Audience:
+Primary message:
 Hero proof point:
-Key features for product proof section (max 3):
+Key features (max 3):
 Trust signals:
 Primary CTA:
-Secondary CTA:
-Do not say:
-SSOT page link:
-Locale: EN-US`,
+Do not say:`,
 
     taskInstruction: `Write one full landing page — all five sections in sequence.
 
@@ -425,12 +407,10 @@ Banned: "cutting-edge", "revolutionary", "seamless", "next-level", "powerful", "
 Product naming (exact capitalization required):
 Plaud Note Pro · Plaud Note · Plaud NotePin S · Plaud NotePin · Plaud Intelligence · Plaud App · Plaud Web · Ask Plaud · Plaud Inc.`,
 
-    briefTemplate: `Context: (e.g. product launch, partnership, award)
-Product or initiative featured:
-New claims or milestones to include:
-Elements to emphasize:
-Do not include:
-SSOT page link:`,
+    briefTemplate: `Context:
+Product or initiative:
+New claims or milestones:
+Do not include:`,
 
     taskInstruction: `Write 3 PR boilerplate variants, 80–120 words each, 2 paragraphs each.
 
@@ -494,13 +474,11 @@ Plaud Note Pro · Plaud Note · Plaud NotePin S · Plaud NotePin · Plaud Intell
 Claim rule: only use specs and claims from the SSOT page. Every number must be exact — never approximated or rounded.`,
 
     briefTemplate: `Product:
-Placement: E-commerce / Plaud website / App store / All three
-Key specs to include:
-Primary benefit to lead with:
-Trust signal to close with:
-Do not include:
-SSOT page link:
-Locale: EN-US`,
+Placement: E-commerce / Website / App store
+Key specs:
+Primary benefit:
+Trust signal:
+Do not include:`,
 
     taskInstruction: `If one platform is specified: write 3 variants for that platform.
 If "All three" is specified: write one variant per platform (e-commerce + website + app store).

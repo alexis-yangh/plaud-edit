@@ -3,6 +3,9 @@ import { useState } from 'react'
 import { PROMPTS } from '@/lib/prompts'
 import NavBar from '@/app/components/NavBar'
 
+const TONE_VARIANTS = ['Consumer', 'Neutral', 'Lifestyle', 'Technical', 'Professional'] as const
+type ToneVariant = typeof TONE_VARIANTS[number]
+
 type GroupItem = { type: 'single'; key: string; label: string }
 type GroupParent = { type: 'group'; id: string; label: string; children: { key: string; label: string }[] }
 type Group = GroupItem | GroupParent
@@ -33,6 +36,7 @@ export default function GeneratePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [toneVariant, setToneVariant] = useState<ToneVariant>('Professional')
 
   function selectKey(key: string) {
     setSelectedKey(key)
@@ -57,7 +61,7 @@ export default function GeneratePage() {
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ promptKey: selectedKey, brief }),
+        body: JSON.stringify({ promptKey: selectedKey, brief, toneVariant }),
       })
       if (!res.ok) throw new Error('Generation failed')
 
@@ -156,15 +160,7 @@ export default function GeneratePage() {
 
         {/* Brief */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-[10px] font-semibold text-plaud-warm-dark uppercase tracking-[0.15em]">Brief</p>
-            <button
-              onClick={() => setBrief(PROMPTS[selectedKey].briefTemplate)}
-              className="text-[11px] text-plaud-warm-dark hover:text-plaud-black transition-colors font-medium"
-            >
-              Reset template
-            </button>
-          </div>
+          <p className="text-[10px] font-semibold text-plaud-warm-dark uppercase tracking-[0.15em] mb-3">Brief</p>
           <textarea
             value={brief}
             onChange={e => setBrief(e.target.value)}
@@ -173,8 +169,30 @@ export default function GeneratePage() {
             spellCheck={false}
           />
           <p className="text-[11px] text-plaud-warm-dark mt-2">
-            Fill in each field. Leave optional fields blank or remove them.
+            Fill in what's relevant. Leave optional fields blank.
           </p>
+        </div>
+
+        {/* Tone variant */}
+        <div className="mb-6">
+          <p className="text-[10px] font-semibold text-plaud-warm-dark uppercase tracking-[0.15em] mb-3">
+            Tone variant
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {TONE_VARIANTS.map(tone => (
+              <button
+                key={tone}
+                onClick={() => setToneVariant(tone)}
+                className={`px-3.5 py-1.5 rounded-plaud text-sm font-medium transition-colors ${
+                  toneVariant === tone
+                    ? 'bg-plaud-black text-white'
+                    : 'bg-plaud-white text-plaud-black hover:bg-black/5'
+                }`}
+              >
+                {tone}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Generate */}

@@ -12,13 +12,21 @@ function proxyUrl(stream: boolean) {
 }
 
 export async function POST(request: Request) {
-  const { promptKey, brief } = await request.json()
+  const { promptKey, brief, toneVariant } = await request.json()
 
   const prompt = PROMPTS[promptKey]
   if (!prompt) return new Response('Unknown prompt key', { status: 400 })
   if (!brief?.trim()) return new Response('Brief is required', { status: 400 })
 
-  const userMessage = `BRIEF\n\n${brief.trim()}\n\n---\n\nTASK\n\n${prompt.taskInstruction}\n\n---\n\nQA CHECK\n\n${prompt.qaInstruction}`
+  const toneGuide: Record<string, string> = {
+    Consumer: 'conversational, warm, benefit-first, relatable',
+    Neutral: 'balanced, clear, neither casual nor formal',
+    Lifestyle: 'aspirational, visual, identity-led, emotionally resonant',
+    Technical: 'spec-led, precise, feature-forward, quantified',
+    Professional: 'structured, authoritative, strategic, confident',
+  }
+  const toneInstruction = toneVariant ? `TONE VARIANT: ${toneVariant} — ${toneGuide[toneVariant] ?? ''}\nAdapt your register to match this tone throughout all copy.\n\n---\n\n` : ''
+  const userMessage = `BRIEF\n\n${brief.trim()}\n\n---\n\n${toneInstruction}TASK\n\n${prompt.taskInstruction}\n\n---\n\nQA CHECK\n\n${prompt.qaInstruction}`
 
   let upstream: Response
   try {
