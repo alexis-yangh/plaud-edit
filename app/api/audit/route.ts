@@ -27,21 +27,22 @@ export async function POST(request: Request) {
 
   const client = makeClient()
 
-  const message = await client.messages.create({
-    model: MODEL,
-    max_tokens: 2048,
-    system: AUDIT_SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: userMessage }],
-  })
-
-  const raw = message.content[0].type === 'text' ? message.content[0].text : ''
-  const jsonMatch = raw.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) return Response.json({ error: 'Failed to parse audit result' }, { status: 500 })
-
   try {
+    const message = await client.messages.create({
+      model: MODEL,
+      max_tokens: 2048,
+      system: AUDIT_SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: userMessage }],
+    })
+
+    const raw = message.content[0].type === 'text' ? message.content[0].text : ''
+    const jsonMatch = raw.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) return Response.json({ error: 'Failed to parse audit result' }, { status: 500 })
+
     const result = JSON.parse(jsonMatch[0])
     return Response.json(result)
-  } catch {
-    return Response.json({ error: 'Invalid JSON from model' }, { status: 500 })
+  } catch (err: any) {
+    console.error('Audit error:', err?.status, err?.message, err?.error)
+    return Response.json({ error: err?.message || 'Unknown error' }, { status: 500 })
   }
 }
