@@ -1,3 +1,5 @@
+export const runtime = 'edge'
+
 export async function GET() {
   const apiKey = process.env.ANTHROPIC_API_KEY
   const baseUrl = process.env.ANTHROPIC_VERTEX_BASE_URL

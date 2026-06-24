@@ -1,3 +1,5 @@
+export const runtime = 'edge'
+
 import { PROMPTS } from '@/lib/prompts'
 
 const MODEL = 'claude-sonnet-4-5@20250514'

@@ -1,3 +1,5 @@
+export const runtime = 'edge'
+
 import { AUDIT_SYSTEM_PROMPT } from '@/lib/prompts'
 
 const MODEL = 'claude-sonnet-4-5@20250514'
