@@ -1,20 +1,12 @@
-import AnthropicVertex from '@anthropic-ai/vertex-sdk'
 import { PROMPTS } from '@/lib/prompts'
 
 const MODEL = 'claude-sonnet-4-5@20250514'
+const REGION = 'us-east5'
+const PROJECT = 'dummy'
 
-function makeClient() {
-  return new AnthropicVertex({
-    projectId: 'dummy',
-    region: 'us-east5',
-    baseURL: process.env.ANTHROPIC_VERTEX_BASE_URL,
-    authClient: {
-      projectId: 'dummy',
-      getRequestHeaders: async () => ({
-        Authorization: `Bearer ${process.env.ANTHROPIC_API_KEY}`,
-      }),
-    } as any,
-  })
+function proxyUrl(stream: boolean) {
+  const action = stream ? 'streamRawPredict' : 'rawPredict'
+  return `${process.env.ANTHROPIC_VERTEX_BASE_URL}/projects/${PROJECT}/locations/${REGION}/publishers/anthropic/models/${MODEL}:${action}`
 }
 
 export async function POST(request: Request) {
@@ -26,24 +18,51 @@ export async function POST(request: Request) {
 
   const userMessage = `BRIEF\n\n${brief.trim()}\n\n---\n\nTASK\n\n${prompt.taskInstruction}\n\n---\n\nQA CHECK\n\n${prompt.qaInstruction}`
 
-  const client = makeClient()
+  const upstream = await fetch(proxyUrl(true), {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.ANTHROPIC_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      anthropic_version: 'vertex-2023-10-16',
+      max_tokens: 4096,
+      system: prompt.systemContext,
+      messages: [{ role: 'user', content: userMessage }],
+      stream: true,
+    }),
+  })
 
+  if (!upstream.ok) {
+    const err = await upstream.text()
+    console.error('Generate upstream error:', upstream.status, err)
+    return new Response('Generation failed', { status: 500 })
+  }
+
+  // Forward the SSE stream, extracting text deltas
+  const encoder = new TextEncoder()
   const stream = new ReadableStream({
     async start(controller) {
-      const encoder = new TextEncoder()
+      const reader = upstream.body!.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
       try {
-        const messageStream = client.messages.stream({
-          model: MODEL,
-          max_tokens: 4096,
-          system: prompt.systemContext,
-          messages: [{ role: 'user', content: userMessage }],
-        })
-        for await (const event of messageStream) {
-          if (
-            event.type === 'content_block_delta' &&
-            event.delta.type === 'text_delta'
-          ) {
-            controller.enqueue(encoder.encode(event.delta.text))
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n')
+          buffer = lines.pop() ?? ''
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue
+            const data = line.slice(6).trim()
+            if (data === '[DONE]') continue
+            try {
+              const evt = JSON.parse(data)
+              if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
+                controller.enqueue(encoder.encode(evt.delta.text))
+              }
+            } catch {}
           }
         }
       } finally {
